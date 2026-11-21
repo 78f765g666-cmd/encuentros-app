@@ -1,0 +1,27 @@
+workflows:
+  ios-capacitor:
+    name: Compilar Encuentros iOS para App Store
+    instance_type: mac_mini_m2
+    max_build_duration: 60
+    environment:
+      node: 20
+      xcode: latest
+      cocoapods: default
+    scripts:
+      - name: Instalar dependencias
+        script: npm install
+      - name: Sincronizar proyecto nativo de Capacitor
+        script: |
+          npx cap add ios || true
+          npx cap sync ios
+      - name: Compilar archivo IPA para iOS
+        script: |
+          xcode-project build-ipa \
+            --workspace ios/App/App.xcworkspace \
+            --scheme App
+    artifacts:
+      - build/ios/ipa/*.ipa
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
